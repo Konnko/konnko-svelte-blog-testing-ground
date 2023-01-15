@@ -1,0 +1,274 @@
+[
+  {
+    "id": "_pb_users_auth_",
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "schema": [
+      {
+        "id": "users_name",
+        "name": "name",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "users_avatar",
+        "name": "avatar",
+        "type": "file",
+        "system": false,
+        "required": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "image/jpg",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/gif"
+          ],
+          "thumbs": null
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "id = @request.auth.id",
+    "deleteRule": "id = @request.auth.id",
+    "options": {
+      "allowEmailAuth": true,
+      "allowOAuth2Auth": true,
+      "allowUsernameAuth": true,
+      "exceptEmailDomains": null,
+      "manageRule": null,
+      "minPasswordLength": 8,
+      "onlyEmailDomains": null,
+      "requireEmail": false
+    }
+  },
+  {
+    "id": "aihhntqmi6pwile",
+    "name": "posts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "nkim3oax",
+        "name": "title",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "min": 3,
+          "max": 50,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "4wiihwwx",
+        "name": "author",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false
+        }
+      },
+      {
+        "id": "kfqqjgwn",
+        "name": "path",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "unique": true,
+        "options": {
+          "min": 3,
+          "max": 30,
+          "pattern": "^[-a-zA-Z0-9]*$"
+        }
+      },
+      {
+        "id": "8otj4rkb",
+        "name": "text",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "min": 20,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "rxt8w6mj",
+        "name": "coverImage",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "hgr6m1o39es8ds8",
+          "cascadeDelete": false
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "author = @request.auth.id",
+    "updateRule": "@request.auth.id = author",
+    "deleteRule": "@request.auth.id = author",
+    "options": {}
+  },
+  {
+    "id": "woph5073fgtphgb",
+    "name": "comments",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "zqr92oq0",
+        "name": "text",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "min": 3,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "0pbqsvzw",
+        "name": "author",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false
+        }
+      },
+      {
+        "id": "plfnoggh",
+        "name": "post",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "aihhntqmi6pwile",
+          "cascadeDelete": false
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "author = @request.auth.id",
+    "updateRule": "@request.auth.id = author",
+    "deleteRule": "@request.auth.id = author",
+    "options": {}
+  },
+  {
+    "id": "yug1jw8m5md71ag",
+    "name": "postLikes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "cmljvyqf",
+        "name": "post",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "aihhntqmi6pwile",
+          "cascadeDelete": false
+        }
+      },
+      {
+        "id": "frwwurv1",
+        "name": "user",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false
+        }
+      }
+    ],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": "@request.auth.id = user",
+    "updateRule": null,
+    "deleteRule": "@request.auth.id = user",
+    "options": {}
+  },
+  {
+    "id": "hgr6m1o39es8ds8",
+    "name": "images",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "2bkrwnvq",
+        "name": "field",
+        "type": "file",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "image/png",
+            "image/jpg"
+          ],
+          "thumbs": []
+        }
+      },
+      {
+        "id": "ognhkgog",
+        "name": "uploader",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "unique": false,
+        "options": {
+          "maxSelect": null,
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "uploader = @request.auth.id",
+    "updateRule": "@request.auth.id = uploader",
+    "deleteRule": "@request.auth.id = uploader",
+    "options": {}
+  }
+]
