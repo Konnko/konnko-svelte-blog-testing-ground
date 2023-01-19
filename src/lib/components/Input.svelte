@@ -11,19 +11,7 @@
 	on:focusout
 	on:keyup
 	{...$$props}
-	class={`inputStyle ${$$props.class ?? ''} ${checkPattern ? 'inputStyleInvalid' : ''}`}
+	class={`w-full rounded-lg border-2 border-gray-200 py-1 px-2 text-lg transition hover:outline-none ${
+		$$props.class ?? ''
+	} ${checkPattern ? 'invalid:border-red-400' : ''}`}
 />
-
-<style>
-	.inputStyle {
-		@apply w-full rounded-lg border-2 border-gray-200 py-1 px-2 text-lg transition;
-	}
-
-	.inputStyle:hover {
-		@apply outline-none;
-	}
-
-	.inputStyleInvalid:invalid {
-		@apply border-red-400;
-	}
-</style>
