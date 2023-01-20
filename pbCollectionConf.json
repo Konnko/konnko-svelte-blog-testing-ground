@@ -28,7 +28,13 @@
 				"options": {
 					"maxSelect": 1,
 					"maxSize": 5242880,
-					"mimeTypes": ["image/jpg", "image/jpeg", "image/png", "image/svg+xml", "image/gif"],
+					"mimeTypes": [
+						"image/jpg",
+						"image/jpeg",
+						"image/png",
+						"image/svg+xml",
+						"image/gif"
+					],
 					"thumbs": null
 				}
 			}
@@ -229,7 +235,7 @@
 		"schema": [
 			{
 				"id": "2bkrwnvq",
-				"name": "field",
+				"name": "file",
 				"type": "file",
 				"system": false,
 				"required": true,
@@ -237,7 +243,10 @@
 				"options": {
 					"maxSelect": 1,
 					"maxSize": 5242880,
-					"mimeTypes": ["image/png", "image/jpg"],
+					"mimeTypes": [
+						"image/png",
+						"image/jpg"
+					],
 					"thumbs": []
 				}
 			},
@@ -257,7 +266,7 @@
 		],
 		"listRule": "",
 		"viewRule": "",
-		"createRule": "uploader = @request.auth.id",
+		"createRule": "@request.auth.id = @request.data.uploader.id",
 		"updateRule": "@request.auth.id = uploader",
 		"deleteRule": "@request.auth.id = uploader",
 		"options": {}

@@ -1,9 +1,5 @@
-export const pfetch = (url: string, payload: unknown) =>
+export const pfetch = (url: string, payload: unknown | FormData) =>
 	fetch(url, {
 		method: 'POST',
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(payload)
+		body: payload instanceof FormData ? payload : JSON.stringify(payload)
 	})

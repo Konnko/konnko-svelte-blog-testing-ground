@@ -6,6 +6,7 @@
 	import { pfetch } from '$lib/fetchShortcuts'
 	import { onMount } from 'svelte'
 	import type { ActionData } from './$types'
+	import type {} from 'svelte/elements'
 
 	export let form: ActionData
 
@@ -25,6 +26,22 @@
 			const data = await res.json()
 			isPathAvailable = data.pathAvailable
 		}, 750)
+	}
+
+	let imageSrc: string
+	const uploadImage = async (e: any) => {
+		const target = e.target as HTMLInputElement
+
+		const headImg = target.files![0]
+
+		if (headImg.size > 5242880) {
+			return
+		}
+
+		const imgFormData = new FormData()
+		imgFormData.append('file', headImg)
+		const imageResponse = await pfetch('/uploadImg', imgFormData)
+		imageSrc = (await imageResponse.json()).location
 	}
 
 	let hadMounted = false
@@ -62,6 +79,11 @@
 		/>
 		<p class="ml-1 text-xs text-gray-500">Title has to be 3 to 50 symbols long</p>
 	</div>
+
+	<input type="file" accept="image/jpeg, image/png" on:change={(e) => uploadImage(e)} />
+	{#if imageSrc}
+		<div class=""><img src={imageSrc} alt="Header preview" /></div>
+	{/if}
 
 	<div class="my-4">
 		{#await import('./Editor.svelte') then Editor}

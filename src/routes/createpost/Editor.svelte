@@ -54,7 +54,8 @@
 		promotion: false,
 		toolbar:
 			'undo redo | casechange blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | ' +
-			'bullist numlist checklist outdent indent | removeformat | code table help'
+			'bullist numlist checklist outdent indent | removeformat | code table help',
+		images_upload_url: window.location.origin + '/uploadImg'
 	}
 
 	onMount(() => tinymce.init({}))
