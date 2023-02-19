@@ -3,7 +3,9 @@ import type { RequestHandler } from './$types'
 
 export const POST = (async ({ request, locals }) => {
 	const { name, code, verifierCode, redirectURL } = await request.json()
-	await locals.pb.collection('users').authWithOAuth2(name, code, verifierCode, redirectURL)
+	const authData = await locals.pb
+		.collection('users')
+		.authWithOAuth2(name, code, verifierCode, redirectURL)
 
-	return json(null)
+	return json(authData.record)
 }) satisfies RequestHandler

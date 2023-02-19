@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation'
 	import { pfetch } from '$lib/fetchShortcuts'
 	import { PUBLIC_SK_URL } from '$env/static/public'
+	import { user } from '$lib/store'
 
 	const redirectURL = PUBLIC_SK_URL + 'auth/redirect'
 
@@ -21,7 +22,10 @@
 			redirectURL
 		}
 
-		await pfetch('/auth/finishauth', payload)
+		const userData = await (await pfetch('/auth/finishauth', payload)).json()
+
+		user.set(userData)
+
 		goto('/')
 	})
 </script>

@@ -50,7 +50,7 @@
 			'help',
 			'wordcount'
 		],
-		content_style: 'img {max-width: 100%;}',
+		content_style: 'img {display: block; max-width:100%; height: auto;}',
 		promotion: false,
 		toolbar:
 			'undo redo | casechange blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | ' +

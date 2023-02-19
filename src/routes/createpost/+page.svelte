@@ -6,7 +6,6 @@
 	import { pfetch } from '$lib/fetchShortcuts'
 	import { onMount } from 'svelte'
 	import type { ActionData } from './$types'
-	import type {} from 'svelte/elements'
 
 	export let form: ActionData
 
@@ -58,8 +57,7 @@
 	method="POST"
 	use:enhance={() => {
 		return async ({ result }) => {
-			if (result.type === 'success') {
-				await invalidateAll()
+			if (result.type === 'redirect') {
 				localStorage.removeItem('postDraft')
 			}
 			await applyAction(result)
@@ -86,7 +84,9 @@
 	{/if}
 
 	<div class="my-4">
-		{#await import('./Editor.svelte') then Editor}
+		{#await import('./Editor.svelte')}
+			<div class="h-[500px] rounded-[10px] bg-white" />
+		{:then Editor}
 			<Editor.default bind:text />
 		{/await}
 		<input type="text" name="text" bind:value={text} hidden />

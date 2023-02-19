@@ -2,10 +2,17 @@
 	import '../app.css'
 	import { user } from '$lib/store'
 	import Button from '$lib/components/Button.svelte'
+	import { pfetch } from '$lib/fetchShortcuts'
+	import { onMount } from 'svelte'
 
 	export let data
 
 	data && user.set(data)
+
+	let pathname = ''
+	onMount(() => (pathname = window.location.origin))
+
+	const logout = () => pfetch(pathname + '/auth/logout').then(() => user.set(null))
 
 	const outerWrap = 'w-screen content-center break-words'
 	const contentWrap = 'm-auto max-w-4xl'
@@ -17,7 +24,7 @@
 		{#if $user?.username}
 			<div class="flex items-center gap-6">
 				<Button><a href="/createpost" class="text-lg">+ Post</a></Button>
-				<p class="text-lg">{$user.username}</p>
+				<p class="text-lg cursor-pointer" on:click={logout}>{$user.username}</p>
 			</div>
 		{:else}
 			<a href="/auth/signin" class="text-lg"> Log in </a>
