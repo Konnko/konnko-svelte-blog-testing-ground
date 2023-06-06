@@ -1,30 +1,49 @@
 import { pojofy } from '$lib/util/pojofy'
-import type { Actions } from '@sveltejs/kit'
-import type { PageServerLoad } from './$types'
+import { error, type Actions } from '@sveltejs/kit'
+import { prisma } from '$lib/prisma'
 
-export const load = (async ({ locals, params }) => {
-	const post = pojofy(
-		await locals.pb
-			.collection('posts')
-			.getFirstListItem(`path="${params.postPath}"`, { expand: 'author' })
-	)
-
-	const comments = pojofy(
-		await locals.pb
-			.collection('comments')
-			.getFullList(200, { filter: `post="${post.id}"`, expand: 'author' })
-	)
-
-	return { ...post, comments }
-}) satisfies PageServerLoad
+export const load = async ({ params }) => {
+	try {
+		const post = await prisma.post.findUnique({
+			where: {
+				path: params.postPath
+			},
+			select: {
+				id: true,
+				title: true,
+				content: true,
+				authorName: true,
+				createdAt: true,
+				updatedAt: true,
+				comments: true
+			}
+		})
+		if (!post) throw error(404, '404 Post not found')
+		return { post: pojofy(post) }
+	} catch (e) {
+		throw error(500, '500 Failed to fetch posts')
+	}
+}
 
 export const actions: Actions = {
 	default: async ({ locals, request }) => {
 		const data = await request.formData()
 
+		if (!locals.name || !data) {
+			return error(500, "Couldn't post comment")
+		}
+
 		const text = data.get('text')
 		const post = data.get('post')
 
-		await locals.pb.collection('comments').create({ text, author: locals.user.id, post })
+		await prisma.comment.create({
+			data: {
+				content: text as string,
+				authorName: locals.name,
+				postId: Number(post)
+			}
+		})
+
+		return { success: true }
 	}
 }

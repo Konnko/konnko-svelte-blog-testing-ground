@@ -1,14 +1,23 @@
 import { pojofy } from '$lib/util/pojofy'
-import { error } from '@sveltejs/kit'
+import { prisma } from '$lib/prisma'
 import type { PageServerLoad } from './$types'
+import { error } from '@sveltejs/kit'
 
-export const load = (async ({ locals }) => {
+export const load = (async () => {
 	try {
-		const posts = await locals.pb
-			.collection('posts')
-			.getList(1, 20, { sort: '-created', expand: 'author' })
-		return { posts: pojofy(posts) }
-	} catch (e) {
+		const result = await prisma.post.findMany({
+			where: {
+				published: true
+			},
+			orderBy: {
+				createdAt: 'desc'
+			},
+			skip: 0,
+			take: 50
+		})
+
+		return { posts: pojofy(result) }
+	} catch {
 		throw error(500, '500 Failed to fetch posts')
 	}
 }) satisfies PageServerLoad

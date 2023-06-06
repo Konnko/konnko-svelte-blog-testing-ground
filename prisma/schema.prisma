@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  discordId String    @unique
+  avatarUrl String?
+  email     String    @unique
+  name      String    @unique
+  posts     Post[]
+  comments  Comment[]
+}
+
+model Post {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  title      String?   @default("")
+  content    String?   @default("")
+  published  Boolean?  @default(false)
+  author     User      @relation(fields: [authorName], references: [name])
+  authorName String
+  path       String    @unique @default(uuid())
+  cover      Image?    @relation("cover")
+  images     Image[]
+  comments   Comment[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  content    String
+  author     User     @relation(fields: [authorName], references: [name])
+  authorName String
+  post       Post   @relation(fields: [postId], references: [id])
+  postId     Int
+}
+
+model Image {
+  url    String @unique
+  postWithCover Post? @relation("cover", fields: [postWithCoverId], references: [id], onDelete: Cascade)
+  postWithCoverId Int? @unique
+  post   Post?  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int?
+}

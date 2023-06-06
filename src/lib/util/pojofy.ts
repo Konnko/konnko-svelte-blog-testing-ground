@@ -1,1 +1,1 @@
-export const pojofy = (nonPOJO: unknown) => JSON.parse(JSON.stringify(nonPOJO))
+export const pojofy = <T>(nonPOJO: T): T => JSON.parse(JSON.stringify(nonPOJO))

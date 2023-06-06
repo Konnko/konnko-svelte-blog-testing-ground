@@ -1,2 +1,2 @@
-export const timeToLocale = (timestr: string) =>
+export const timeToLocale = (timestr: Date) =>
 	new Date(timestr).toLocaleString('en-GB', { timeZone: 'UTC' })

@@ -1,33 +1,84 @@
 // src/hooks.server.js
-import type { Handle } from '@sveltejs/kit'
-import { PUBLIC_PB_URL } from '$env/static/public'
-import PocketBase from 'pocketbase'
-import { pojofy } from '$lib/util/pojofy'
+import { SvelteKitAuth } from '@auth/sveltekit'
+import { decode } from '@auth/core/jwt'
+import Discord, { type DiscordProfile } from '@auth/core/providers/discord'
+import { DISCORD_CLIENT_ID, DISCORD_SECRET, AUTH_SECRET } from '$env/static/private'
+import { prisma } from '$lib/prisma'
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle = (async ({ event, resolve }) => {
-	event.locals.pb = new PocketBase(PUBLIC_PB_URL)
+	const token = event.cookies.get('next-auth.session-token')
 
-	// load the store data from the request cookie string
-	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '')
-
-	try {
-		// get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
-		if (event.locals.pb.authStore.isValid) {
-			await event.locals.pb.collection('users').authRefresh()
-			event.locals.user = pojofy(event.locals.pb.authStore.model)
-		}
-	} catch (_) {
-		// clear the auth store on failed refresh
-		event.locals.pb.authStore.clear()
-		event.locals.user = null
+	if (token) {
+		const decoded = await decode({ token, secret: AUTH_SECRET })
+		event.locals.name = decoded?.sub
 	}
 
-	const response = await resolve(event)
+	const authHandle = await SvelteKitAuth({
+		providers: [
+			//@ts-expect-error issue https://github.com/nextauthjs/next-auth/issues/6174
+			Discord({
+				clientId: DISCORD_CLIENT_ID,
+				clientSecret: DISCORD_SECRET
+			})
+		],
+		session: { strategy: 'jwt' },
+		callbacks: {
+			async signIn({ profile }) {
+				if (!profile?.email) {
+					return false
+				}
 
-	// send back the default 'pb_auth' cookie to the client with the latest store state
-	response.headers.set('set-cookie', event.locals.pb.authStore.exportToCookie())
-	response.headers.set('Access-Control-Allow-Origin', PUBLIC_PB_URL)
+				const typedProfile = profile as DiscordProfile
+				const { username, image_url, email } = typedProfile
+				const discordId = typedProfile.id
 
-	return response
-}) satisfies Handle
+				const typecastedEmail = email as string
+
+				try {
+					if (discordId) {
+						const result = await prisma.user.findUnique({
+							where: {
+								discordId
+							}
+						})
+
+						if (result) {
+							profile.sub = result.name
+							return true
+						}
+
+						const newUserId = await prisma.user.create({
+							data: {
+								name: username,
+								email: typecastedEmail,
+								discordId,
+								avatarUrl: image_url
+							}
+						})
+
+						profile.sub = newUserId.name
+					}
+				} catch (error) {
+					console.log(error)
+					return false
+				}
+
+				return true
+			},
+			async jwt({ token, profile }) {
+				if (profile) {
+					token.sub = profile.sub
+					token.picture = undefined
+				}
+				return token
+			},
+			async session({ session }) {
+				if (session.user?.email) session.user.email = undefined
+				return session
+			}
+		}
+	})({ event, resolve })
+
+	return authHandle
+}) satisfies import('@sveltejs/kit').Handle

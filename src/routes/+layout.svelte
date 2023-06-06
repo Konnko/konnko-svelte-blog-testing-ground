@@ -1,18 +1,7 @@
 <script lang="ts">
 	import '../app.css'
-	import { user } from '$lib/store'
+	import { page } from '$app/stores'
 	import Button from '$lib/components/Button.svelte'
-	import { pfetch } from '$lib/fetchShortcuts'
-	import { onMount } from 'svelte'
-
-	export let data
-
-	data && user.set(data)
-
-	let pathname = ''
-	onMount(() => (pathname = window.location.origin))
-
-	const logout = () => pfetch(pathname + '/auth/logout').then(() => user.set(null))
 
 	const outerWrap = 'w-screen content-center break-words'
 	const contentWrap = 'm-auto max-w-4xl'
@@ -21,10 +10,10 @@
 <nav class="{outerWrap} mb-4 bg-white p-1.5 drop-shadow">
 	<div class="{contentWrap} flex items-center justify-between align-middle">
 		<a href="/" class="cursor-pointer rounded-md bg-black p-2 text-2xl text-white">BLOG</a>
-		{#if $user?.username}
+		{#if $page.data.session}
 			<div class="flex items-center gap-6">
-				<Button><a href="/createpost" class="text-lg">+ Post</a></Button>
-				<p class="text-lg cursor-pointer" on:click={logout}>{$user.username}</p>
+				<Button><a href="/editor" class="text-lg">+ Post</a></Button>
+				<a href="/auth/signout" class="text-lg"> Sign out </a>
 			</div>
 		{:else}
 			<a href="/auth/signin" class="text-lg"> Log in </a>

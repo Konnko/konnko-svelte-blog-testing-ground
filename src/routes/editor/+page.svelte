@@ -1,17 +1,15 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms'
-	import { invalidateAll } from '$app/navigation'
 	import Button from '$lib/components/Button.svelte'
 	import Input from '$lib/components/Input.svelte'
 	import { pfetch } from '$lib/fetchShortcuts'
 	import { onMount } from 'svelte'
-	import type { ActionData } from './$types'
 
-	export let form: ActionData
+	export let data
+	export let form
 
 	let titleWasInFocus = false
 	let pathWasInFocus = false
-
 	let text: string
 
 	let timer: number
@@ -39,7 +37,7 @@
 
 		const imgFormData = new FormData()
 		imgFormData.append('file', headImg)
-		const imageResponse = await pfetch('/uploadImg', imgFormData)
+		const imageResponse = await pfetch('/api/image', imgFormData)
 		imageSrc = (await imageResponse.json()).location
 	}
 
@@ -79,20 +77,30 @@
 	</div>
 
 	<input type="file" accept="image/jpeg, image/png" on:change={(e) => uploadImage(e)} />
+	Recommended image size is 894x320
 	{#if imageSrc}
-		<div class=""><img src={imageSrc} alt="Header preview" /></div>
+		<div class="h-80 w-full overflow-hidden"><img src={imageSrc} alt="Header preview" /></div>
+	{/if}
+
+	{#if data.post?.id}
+		<input type="text" name="id" value={data.post.id} hidden />
 	{/if}
 
 	<div class="my-4">
 		{#await import('./Editor.svelte')}
 			<div class="h-[500px] rounded-[10px] bg-white" />
 		{:then Editor}
-			<Editor.default bind:text />
+			{#if data.post?.id}
+				<Editor.default
+					bind:text
+					imageUrls={data.post?.images?.map(({ url }) => url) ?? []}
+					postId={data.post.id}
+				/>
+			{:else}
+				Error loading post :( Please try again later
+			{/if}
 		{/await}
-		<input type="text" name="text" bind:value={text} hidden />
-		{#if form?.postTooShort && text.length < 20}<p class="ml-1 text-xs text-red-600">
-				Post is too short
-			</p>{/if}
+		<input type="text" name="content" bind:value={text} hidden />
 	</div>
 
 	<div class="my-2">
@@ -103,7 +111,6 @@
 			placeholder=""
 			pattern={String.raw`[-a-zA-Z0-9]{3,30}`}
 			checkPattern={pathWasInFocus}
-			required
 			on:focusout={() => (pathWasInFocus = true)}
 			on:keyup={debouncePathCheck}
 		/>
